@@ -50,7 +50,7 @@ int main (void)
 		sim=getchar();//elegir el simbolo para ser usado en las celulas vivas
 		if(sim<33||sim>254)	// todos los caracteres "imprimibles" y "extendido" de la tabla ASCII 
 		{
-			puts("Símbolo inválido\n");//verifica que el simbolo utilizado no sea el mismo que el de las celulas muertas
+			puts("Símbolo inválido. Presione ENTER e ingrese un símbolo válido\n");//verifica que el simbolo utilizado no sea el mismo que el de las celulas muertas
 			err=1;
 		}
 		while(getchar()!='\n')
