@@ -12,7 +12,7 @@ void printmapa(int celula, int celda[][ANCHO])
 			celda[i][j] ? putchar(celula) : putchar(' ');//chequea en cada posicion de la matriz si la celula esta viva o muerta
 		}
 		putchar('|');
-		printf("\n");
+		puts("\n");
 	}
-	printf("\n");
+	puts("\n");
 }

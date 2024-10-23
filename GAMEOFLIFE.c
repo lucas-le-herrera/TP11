@@ -17,24 +17,24 @@ static int getnum(void);	//funcion para recibir el numero de generaciones
 
 int main (void)
 {
-        int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
+	int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
 	int gen=0, num = 0,i,sim,sig,err;
 	
-	printf("~~Bienvenido al Juego de la vida~~\nPresione ENTER para continuar\n");
-	do
-	{
-		sig=getchar();
-	}
-	while(sig!='\n');
-	printf("En este juego se mostrará una matriz de dimensiones predetermiadas con células vivas o muertas\n");
-	
+	puts("~~Bienvenido al Juego de la vida~~\nPresione ENTER para continuar\n");
 	do
 	{
 		sig=getchar();
 	}
 	while(sig!='\n');
 	
-	printf("Al pasar de generación, las células vivas que tengan exactamente 2 o 3 vecinos vivos, sobreviven;\nlas células muertas que tengan exactamente 3, reviven. El resto, muere.\n\nPresione ENTER para iniciar el juego\n");
+	puts("En este juego se mostrará una matriz de dimensiones predetermiadas con células vivas o muertas\n");
+	do
+	{
+		sig=getchar();
+	}
+	while(sig!='\n');
+	
+	puts("Al pasar de generación, las células vivas que tengan exactamente 2 o 3 vecinos vivos, sobreviven;\nlas células muertas que tengan exactamente 3, reviven. El resto, muere.\n\nPresione ENTER para iniciar el juego\n");
 	do
 	{
 		sig=getchar();
@@ -43,11 +43,11 @@ int main (void)
 	do
 	{
 		err=0;
-		printf("Seleccione el símbolo con el cual representar a las celulas vivas\n");
+		puts("Seleccione el símbolo con el cual representar a las celulas vivas\n");
 		sim=getchar();//elegir el simbolo para ser usado en las celulas vivas
 		if(sim<33||sim>254)	// todos los caracteres "imprimibles" y "extendido" de la tabla ASCII 
 		{
-			printf("Símbolo inválido\n");//verifica que el simbolo utilizado no sea el mismo que el de las celulas muertas
+			puts("Símbolo inválido\n");//verifica que el simbolo utilizado no sea el mismo que el de las celulas muertas
 			err=1;
 		}
 		while(getchar()!='\n')
@@ -72,12 +72,12 @@ int main (void)
 
 		if(end(celda)==0) // chequea si queda alguna célula viva
 		{
-			printf("Todas las células han muerto\n");
+			puts("Todas las células han muerto\n");
 			break;	//finaliza el programa si todas las celulas estan muertas
 		}
 		else
 		{
-			printf("Ingrese la cantidad de generaciones que desea avanzar. Para avanzar una generación sola, presione ENTER.\n");
+			puts("Ingrese la cantidad de generaciones que desea avanzar. Para avanzar una generación sola, presione ENTER.\n");
 		}
 		
 		do
@@ -85,7 +85,7 @@ int main (void)
 			num = getnum();
 			if(num==-1)	//si el se le carga un caracter invalido pide ingresar otro
 			{
-				printf("Introduzca un número\n");
+				puts("Introduzca un número\n");
 			}
 		}
 		while(num==-1);
@@ -112,7 +112,7 @@ static void ini(int celda[][ANCHO])
 		init = getchar();
 		if(init!='a' && init!='m')
 		{
-			printf("Elija exclusivamente 'a' o 'm'\n");
+			puts("Elija exclusivamente 'a' o 'm'\n");
 		}
 	}
 	while(init!='a' && init!='m');
@@ -133,7 +133,7 @@ static void ini(int celda[][ANCHO])
 	}
 	else
 	{
-		printf("Seleccione el estado de la célula: 1 si está viva o 0 si está muerta\n");
+		puts("Seleccione el estado de la célula: 1 si está viva o 0 si está muerta\n");
 		for ( i = 0; i < ALTO; i++) 
 		{
 			for ( j = 0 ; j < ANCHO ; j++) 
@@ -144,7 +144,7 @@ static void ini(int celda[][ANCHO])
 					celda[i][j]=getnum();
 					if(celda[i][j]!=1 && celda[i][j]!=0)
 					{
-						printf("Solo se puede seleccionar 1 o 0\n");
+						puts("Solo se puede seleccionar 1 o 0\n");
 					}
 				}
 				while(celda[i][j]!=1 && celda[i][j]!=0);
