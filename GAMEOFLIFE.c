@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "tam.h"
 #include "actual.h"
 #include "print.h"
@@ -106,6 +109,8 @@ static void ini(int celda[][ANCHO])
 {
 	int init,i,j;
 	
+	srand (time(NULL));	// inicializa seed random
+
 	printf("Si desea que el estado inicial de las celulas sea aleatorio, ingrese 'a'. Si prefiere inicializarlo manualmente, ingrese 'm'.\n");
 	do
 	{
@@ -121,13 +126,11 @@ static void ini(int celda[][ANCHO])
 		}
 	if(init=='a')
 	{
-		unsigned long int seed=(unsigned long int)__TIME__; //se usa la hora de compilacion como semilla para randomizar el inicio
 		for (i = 0 ; i < ALTO ; i++) 
 		{
 			for (j = 0 ; j < ANCHO ; j++) 
 			{
-				celda[i][j]=seed%2;
-				seed+=(seed * A + B)/C;
+				celda[i][j]=rand() % 2;	// randomiza cada celda, con 1 y 0
 			}
 		}
 	}
