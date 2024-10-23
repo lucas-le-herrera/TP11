@@ -1,6 +1,7 @@
 #include "actual.h"
 #include <stdio.h>
 
+
 #define borde1(x) ((x)? (x)-1:(x))
 #define borde2(x,y) ((x)==((y)-1)? (x):(x)+1)//condicionales para verificar si esta en el borde de la matriz
 
