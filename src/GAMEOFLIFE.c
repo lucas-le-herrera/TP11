@@ -2,15 +2,16 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h> //manejo de fonts
+#include <allegro5/allegro_ttf.h> //Manejo de ttfs
+
 #include "tam.h"
 #include "actual.h"
 #include "print.h"
 
-
-
-#define A 89121
-#define B 33442
-#define C 43433 //numero para randomizar el inicio
+#define D_WIDTH  640
+#define D_HEIGHT 480
 
 static void ini(int celda[][ANCHO]);		// funcion para definir el mapa inicial (aleatorio o manual)
 static int end(int celda[][ANCHO]);
@@ -23,6 +24,12 @@ int main (void)
 	int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
 	int gen=0, num = 0,i,sim,sig,err;
 	
+	/*********
+
+	Ejemplo 7 de allegro: fonts. Implementar bien (ya estan los includes)
+
+	*********/
+
 	puts("~~Bienvenido al Juego de la vida~~\nPresione ENTER para continuar\n");
 	do
 	{
