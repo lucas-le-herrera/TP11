@@ -24,11 +24,77 @@ int main (void)
 	int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
 	int gen=0, num = 0,i,sim,sig,err;
 	
-	/*********
+	/**********/
 
-	Ejemplo 7 de allegro: fonts. Implementar bien (ya estan los includes)
+	ALLEGRO_DISPLAY * display = NULL;
+    ALLEGRO_FONT * font36 = NULL;
+    ALLEGRO_FONT * font24 = NULL;
 
-	*********/
+    ALLEGRO_EVENT_QUEUE * event_queue = NULL;
+
+    if (!al_init()) {
+        fprintf(stderr, "Failed to initialize Allegro.\n");
+        return -1;
+    }
+
+	event_queue = al_create_event_queue(); //Allegro usa cola eventos, como las colas del super pero sin comida :( (por orden de llegada)
+	if (!event_queue)
+	{
+		fprintf(stderr, "failed to create event_queue!\n");
+		return -1;
+	}
+
+    al_init_font_addon(); // initialize the font addon
+    al_init_ttf_addon(); // initialize the ttf (True Type Font) addon
+
+    /* Crea el display*/
+    display = al_create_display(D_WIDTH, D_HEIGHT);
+
+    if (!display) {
+        fprintf(stderr, "Failed to create display.\n");
+        al_destroy_event_queue(event_queue);
+        return -1;
+    }
+
+    //Registra el display a la cola de eventos, los eventos del display se iran guardando en la cola
+    // a medida que vayan sucediendo
+    al_register_event_source(event_queue, al_get_display_event_source(display));
+
+    /* Fuentes */
+    font36 = al_load_ttf_font("res/Times New Roman.ttf", 36, 0); //HAY CREAR UN FONT PARA CADA TAMAÑO DE LETRA :(
+
+    if (!font36) {
+        fprintf(stderr, "Could not load 'Times New Roman.ttf'.\n");
+        return -1;
+    }
+
+    font24 = al_load_ttf_font("res/Times New Roman.ttf", 24, 0);
+
+    if (!font24)
+    {
+    	fprintf(stderr, "Could not load 'Times New Roman.ttf'.\n");
+    	return -1;
+    }
+    /****/
+
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+    al_draw_text(font36, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+    	"~~Juego de la vida~~");
+
+    al_flip_display();
+
+    al_rest(1.5);
+
+    al_draw_text(font24, al_map_rgb(255, 255, 255), 10, (D_HEIGHT / 16)+50, 0,
+    		"Pesione ENTER para continuar");
+
+    al_flip_display();
+
+    al_rest(4.0);
+
+    al_destroy_display(display);
+
+	/*********/
 
 	puts("~~Bienvenido al Juego de la vida~~\nPresione ENTER para continuar\n");
 	do
