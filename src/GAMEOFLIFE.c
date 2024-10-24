@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h> //manejo de fonts
@@ -31,6 +32,8 @@ int main (void)
     ALLEGRO_FONT * font24 = NULL;
 
     ALLEGRO_EVENT_QUEUE * event_queue = NULL;
+
+    bool done = false;
 
     if (!al_init()) {
         fprintf(stderr, "Failed to initialize Allegro.\n");
@@ -88,11 +91,24 @@ int main (void)
     al_draw_text(font24, al_map_rgb(255, 255, 255), 10, (D_HEIGHT / 16)+50, 0,
     		"Pesione ENTER para continuar");
 
+    while(!done);
+    {
+    	ALLEGRO_EVENT event;
+    	if (al_get_next_event(event_queue, %event))
+    	{
+    		if ((event.type == ALLEGRO_KEY_ENTER) || (event.type == ALLEGRO_KEY_PAD_ENTER))
+    		{
+    			/* TEXTO SIGUIENTE. CREAR FUNCION PARA IMPRIMIR EL TITULO, Y ASI ESCRIBIR MENOS */
+    		}
+		}
+    }
+
     al_flip_display();
 
     al_rest(4.0);
 
     al_destroy_display(display);
+    al_destroy_event_queue(event_queue);
 
 	/*********/
 
