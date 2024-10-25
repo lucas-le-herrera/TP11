@@ -17,7 +17,7 @@
 #define FPS 60.0
 #define ENTER "Presione ENTER para continuar"
 
-static void ini(int celda[][ANCHO]);		// funcion para definir el mapa inicial (aleatorio o manual)
+static void ini(int celda[][ANCHO],ALLEGRO_FONT *,ALLEGRO_EVENT);		// funcion para definir el mapa inicial (aleatorio o manual)
 static int end(int celda[][ANCHO]);
 static int getnum(void);	//funcion para recibir el numero de generaciones
 
@@ -26,7 +26,7 @@ static int getnum(void);	//funcion para recibir el numero de generaciones
 int main (void)
 {
 	int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
-	int gen=0, num = 0,i=0,sim,sig,err;
+	int gen=0, num = 0,i=0,err,sim;
 	
 	/**********/
 
@@ -168,16 +168,47 @@ int main (void)
     						i++;
     						break;
     					case 3:
+    						al_clear_to_color(al_map_rgb(0, 0, 0));
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+    						"Seleccione el simbolo en la consola");
+    						al_flip_display();
+    						do
+    						{
+    							err=0;
+    							sim=getchar();//elegir el simbolo para ser usado en las celulas vivas
+    							if(sim<33||sim>254)	// todos los caracteres "imprimibles" y "extendido" de la tabla ASCII
+    							{
+    								al_clear_to_color(al_map_rgb(0, 0, 0));
+    								al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+    								"Símbolo inválido. Presione ENTER e ingrese un símbolo válido");
+    								al_flip_display();
+    								//verifica que el simbolo utilizado sea valido
+    								err=1;
+    							}
+    							while(getchar()!='\n')
+    							{
+    							}
+    						}while(err==1);
     						i++;
     						break;
+    					case 4:
+    						ini(celda,font24,event);//inicia el mundo falta arreglar que tome la a o la m
+    						i++;
+    						break;
+    					case 5:
+    						i++;
+    						break;
+
     				}
-    			if(i==4)
+    			if(i==6)
     			{
     				done=true;
     			}
     		}
 		}
     }
+    done=false;
+
 
     al_rest(4.0);
 
@@ -186,45 +217,7 @@ int main (void)
 
 	/*********/
 
-	puts("~~Bienvenido al Juego de la vida~~\nPresione ENTER para continuar\n");
-	do
-	{
-		sig=getchar();
-	}
-	while(sig!='\n');
 	
-	puts("En este juego se mostrará una matriz de dimensiones predetermiadas con células vivas o muertas\n");
-	do
-	{
-		sig=getchar();
-	}
-	while(sig!='\n');
-	
-	puts("Al pasar de generación, las células vivas que tengan exactamente 2 o 3 vecinos vivos, sobreviven;\nlas células muertas que tengan exactamente 3, reviven. El resto, muere.\n\nPresione ENTER para iniciar el juego\n");
-	do
-	{
-		sig=getchar();
-	}
-	while(sig!='\n');    
-	do
-	{
-		err=0;
-		puts("Seleccione el símbolo con el cual representar a las celulas vivas\n");
-		sim=getchar();//elegir el simbolo para ser usado en las celulas vivas
-		if(sim<33||sim>254)	// todos los caracteres "imprimibles" y "extendido" de la tabla ASCII 
-		{
-			puts("Símbolo inválido. Presione ENTER e ingrese un símbolo válido\n");//verifica que el simbolo utilizado no sea el mismo que el de las celulas muertas
-			err=1;
-		}
-		while(getchar()!='\n')
-		{
-		}
-	}
-	
-	while(err==1);
-	
-	
-	ini(celda);//inicia el mundo con la funcion: random o manual
 	
 	do
 	{
@@ -268,53 +261,63 @@ int main (void)
 }
 
 
-static void ini(int celda[][ANCHO])
+static void ini(int celda[][ANCHO],ALLEGRO_FONT * font24,ALLEGRO_EVENT event)
 {
-	int init,i,j;
+	int i,j;
+	bool done1=false,done2;
 	
 	srand (time(NULL));	// inicializa seed random
 
-	printf("Si desea que el estado inicial de las celulas sea aleatorio, ingrese 'a'. Si prefiere inicializarlo manualmente, ingrese 'm'.\n");
-	do
+
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+	"Si desea que el estado inicial de las celulas sea aleatorio,");
+	al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
+	" ingrese 'a'. Si prefiere inicializarlo manualmente, ingrese 'm'.");
+	al_flip_display();
+
+	while(!done1)
 	{
-		init = getchar();
-		if(init!='a' && init!='m')
+		if(event.keyboard.keycode==ALLEGRO_KEY_A)
 		{
-			puts("Elija exclusivamente 'a' o 'm'\n");
-		}
-	}
-	while(init!='a' && init!='m');
-	while(getchar()!='\n')
-		{
-		}
-	if(init=='a')
-	{
-		for (i = 0 ; i < ALTO ; i++) 
-		{
-			for (j = 0 ; j < ANCHO ; j++) 
+			for (i = 0 ; i < ALTO ; i++)
 			{
-				celda[i][j]=rand() % 2;	// randomiza cada celda, con 1 y 0
-			}
-		}
-	}
-	else
-	{
-		puts("Seleccione el estado de la célula: 1 si está viva o 0 si está muerta\n");
-		for ( i = 0; i < ALTO; i++) 
-		{
-			for ( j = 0 ; j < ANCHO ; j++) 
-			{
-				printf("Estado de la célula en la posición %d,%d\n",i+1,j+1);	// se les suma 1 para que el primer el elemento de la matriz sea (1,1) y no (0,0)
-				do
+				for (j = 0 ; j < ANCHO ; j++)
 				{
-					celda[i][j]=getnum();
-					if(celda[i][j]!=1 && celda[i][j]!=0)
+					celda[i][j]=rand() % 2;	// randomiza cada celda, con 1 y 0
+				}
+			}
+			done1=true;
+		}
+		else if(event.keyboard.keycode == ALLEGRO_KEY_M)
+		{
+			al_clear_to_color(al_map_rgb(0, 0, 0));
+			al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+			"Seleccione el estado de la célula: 1 si está viva o 0 si está muerta");
+			al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
+			"Chequee en consola que posicion esta iniciando");
+			for ( i = 0; i < ALTO; i++)
+			{
+				for ( done2=false, j = 0 ; j < ANCHO ; j++)
+				{
+					printf("Estado de la célula en la posición %d,%d\n",i+1,j+1);	// se les suma 1 para que el primer el elemento de la matriz sea (1,1) y no (0,0)
+					while(!done2)
 					{
-						puts("Solo se puede seleccionar 1 o 0\n");
+						if(event.keyboard.keycode == ALLEGRO_KEY_1)
+						{
+							celda[i][j]=1;
+							done2=true;
+
+						}
+						else if (event.keyboard.keycode == ALLEGRO_KEY_0)
+						{
+							celda[i][j]=0;
+							done2=true;
+						}
 					}
 				}
-				while(celda[i][j]!=1 && celda[i][j]!=0);
 			}
+			done1=true;
 		}
 	}
 }
