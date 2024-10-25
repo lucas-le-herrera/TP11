@@ -11,8 +11,11 @@
 #include "actual.h"
 #include "print.h"
 
+
 #define D_WIDTH  640
 #define D_HEIGHT 480
+#define FPS 60.0
+#define ENTER "Presione ENTER para continuar"
 
 static void ini(int celda[][ANCHO]);		// funcion para definir el mapa inicial (aleatorio o manual)
 static int end(int celda[][ANCHO]);
@@ -23,20 +26,28 @@ static int getnum(void);	//funcion para recibir el numero de generaciones
 int main (void)
 {
 	int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
-	int gen=0, num = 0,i,sim,sig,err;
+	int gen=0, num = 0,i=0,sim,sig,err;
 	
 	/**********/
 
 	ALLEGRO_DISPLAY * display = NULL;
     ALLEGRO_FONT * font36 = NULL;
     ALLEGRO_FONT * font24 = NULL;
-
+    ALLEGRO_TIMER * timer = NULL;
     ALLEGRO_EVENT_QUEUE * event_queue = NULL;
 
     bool done = false;
 
+
+
     if (!al_init()) {
         fprintf(stderr, "Failed to initialize Allegro.\n");
+        return -1;
+    }
+
+    if (!al_install_keyboard())
+    {
+    	fprintf(stderr, "failed to initialize the keyboard!\n");
         return -1;
     }
 
@@ -59,10 +70,18 @@ int main (void)
         return -1;
     }
 
+    timer = al_create_timer(1.0 / FPS);
+        if (!timer) {
+            fprintf(stderr, "failed to create timer!\n");
+            al_destroy_event_queue(event_queue);
+            al_destroy_display(display);
+            return -1;
+        }
+
     //Registra el display a la cola de eventos, los eventos del display se iran guardando en la cola
     // a medida que vayan sucediendo
-    al_register_event_source(event_queue, al_get_display_event_source(display));
-
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
+    al_register_event_source(event_queue, al_get_timer_event_source(timer));
     /* Fuentes */
     font36 = al_load_ttf_font("res/Times New Roman.ttf", 36, 0); //HAY CREAR UN FONT PARA CADA TAMAÑO DE LETRA :(
 
@@ -89,21 +108,76 @@ int main (void)
     al_rest(1.5);
 
     al_draw_text(font24, al_map_rgb(255, 255, 255), 10, (D_HEIGHT / 16)+50, 0,
-    		"Pesione ENTER para continuar");
+    		ENTER);
+    al_flip_display();
 
-    while(!done);
+    al_start_timer(timer);
+    while(!done)
     {
     	ALLEGRO_EVENT event;
-    	if (al_get_next_event(event_queue, %event))
+
+    	if (al_get_next_event(event_queue, &event))
     	{
-    		if ((event.type == ALLEGRO_KEY_ENTER) || (event.type == ALLEGRO_KEY_PAD_ENTER))
+    		if (event.type == ALLEGRO_EVENT_KEY_DOWN && event.keyboard.keycode == ALLEGRO_KEY_ENTER)
     		{
-    			/* TEXTO SIGUIENTE. CREAR FUNCION PARA IMPRIMIR EL TITULO, Y ASI ESCRIBIR MENOS */
+    			switch(i)
+    				{
+    					case 0:
+    						al_clear_to_color(al_map_rgb(0, 0, 0));
+    						al_draw_text(font36, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+    								"~~Bienvenido al Juego de la vida~~");
+    						al_flip_display();
+    						al_rest(1.0);
+    						al_draw_text(font36, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
+    						    	ENTER);
+    						al_flip_display();
+    						al_rest(1.0);
+    						i++;
+    						break;
+    					case 1:
+    						al_clear_to_color(al_map_rgb(0, 0, 0));
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+    								"En este juego se mostrará una matriz de dimensiones ");
+    						al_flip_display();
+    						al_rest(1.0);
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
+    								" predetermiadas con células vivas o muertas");
+    						al_flip_display();
+    						al_rest(1.0);
+    						i++;
+    						break;
+
+    					case 2:
+    						al_clear_to_color(al_map_rgb(0, 0, 0));
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
+    								"Al pasar de generación, las células vivas que tengan exactamente");
+    						al_flip_display();
+    						al_rest(1.0);
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
+    						    	"2 o 3 vecinos vivos, sobreviven;las células muertas que tengan");
+    						al_flip_display();
+    						al_rest(1.0);
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+100, ALLEGRO_ALIGN_CENTER,
+    						    	" exactamente 3, reviven. El resto, muere.");
+    						al_flip_display();
+    						al_rest(1.0);
+    						al_draw_text(font36, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+150, ALLEGRO_ALIGN_CENTER,
+    						    	ENTER);
+    						al_flip_display();
+    						al_rest(1.0);
+    						i++;
+    						break;
+    					case 3:
+    						i++;
+    						break;
+    				}
+    			if(i==4)
+    			{
+    				done=true;
+    			}
     		}
 		}
     }
-
-    al_flip_display();
 
     al_rest(4.0);
 
