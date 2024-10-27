@@ -34,6 +34,7 @@
 									<listOptionValue builtIn="false" value="allegro"/>
 									<listOptionValue builtIn="false" value="allegro_ttf"/>
 									<listOptionValue builtIn="false" value="allegro_font"/>
+									<listOptionValue builtIn="false" value="allegro_primitives"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1531571320" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

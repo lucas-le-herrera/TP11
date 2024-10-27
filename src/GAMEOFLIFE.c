@@ -6,18 +6,20 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h> //manejo de fonts
 #include <allegro5/allegro_ttf.h> //Manejo de ttfs
+#include <allegro5/allegro_primitives.h>
+
+
 
 #include "tam.h"
 #include "actual.h"
-#include "print.h"
 
 
-#define D_WIDTH  640
-#define D_HEIGHT 480
+#define CELDA_SIZE 40
 #define FPS 60.0
 #define ENTER "Presione ENTER para continuar"
 
-static void ini(int celda[][ANCHO],ALLEGRO_FONT *,ALLEGRO_EVENT);		// funcion para definir el mapa inicial (aleatorio o manual)
+
+static void ini(int celda[][ANCHO]);		// funcion para definir el mapa inicial (aleatorio o manual)
 static int end(int celda[][ANCHO]);
 static int getnum(void);	//funcion para recibir el numero de generaciones
 
@@ -26,7 +28,7 @@ static int getnum(void);	//funcion para recibir el numero de generaciones
 int main (void)
 {
 	int celda[ALTO][ANCHO];//matriz con las celulas vivas y muertas
-	int gen=0, num = 0,i=0,err,sim;
+	int gen=0, num = 0,i=0,j;
 	
 	/**********/
 
@@ -36,14 +38,22 @@ int main (void)
     ALLEGRO_TIMER * timer = NULL;
     ALLEGRO_EVENT_QUEUE * event_queue = NULL;
 
-    bool done = false;
+    bool done = false,close = false;
 
 
 
-    if (!al_init()) {
+    if (!al_init())
+    {
         fprintf(stderr, "Failed to initialize Allegro.\n");
         return -1;
     }
+    if (!al_init_primitives_addon())
+        {
+            fprintf(stderr, "Failed to initialize Primitives.\n");
+            return -1;
+        }
+
+
 
     if (!al_install_keyboard())
     {
@@ -80,6 +90,7 @@ int main (void)
 
     //Registra el display a la cola de eventos, los eventos del display se iran guardando en la cola
     // a medida que vayan sucediendo
+        al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     /* Fuentes */
@@ -168,70 +179,78 @@ int main (void)
     						i++;
     						break;
     					case 3:
-    						al_clear_to_color(al_map_rgb(0, 0, 0));
+    						al_clear_to_color(al_map_rgb(0,0,0));
     						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
-    						"Seleccione el simbolo en la consola");
+    						" Pulse ENTER para avanzar una generacion o un numero");
     						al_flip_display();
-    						do
-    						{
-    							err=0;
-    							sim=getchar();//elegir el simbolo para ser usado en las celulas vivas
-    							if(sim<33||sim>254)	// todos los caracteres "imprimibles" y "extendido" de la tabla ASCII
-    							{
-    								al_clear_to_color(al_map_rgb(0, 0, 0));
-    								al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
-    								"Símbolo inválido. Presione ENTER e ingrese un símbolo válido");
-    								al_flip_display();
-    								//verifica que el simbolo utilizado sea valido
-    								err=1;
-    							}
-    							while(getchar()!='\n')
-    							{
-    							}
-    						}while(err==1);
+    						al_rest(1.0);
+    						al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
+    						" y ENTER para avanzar generaciones, esto seleccionelo en consola.");
+    						al_flip_display();
+    						al_rest(1.0);
+    						al_draw_text(font36, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+100, ALLEGRO_ALIGN_CENTER,
+    						ENTER);
+    						al_flip_display();
+    						al_rest(1.0);
+    						ini(celda);//inicia el mundo falta arreglar que tome la a o la m
     						i++;
     						break;
     					case 4:
-    						ini(celda,font24,event);//inicia el mundo falta arreglar que tome la a o la m
-    						i++;
-    						break;
-    					case 5:
     						i++;
     						break;
 
     				}
-    			if(i==6)
+    			if(i==5)
     			{
     				done=true;
     			}
+    		}
+    		else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+    		{
+    			done=true;
+    			close = true;
     		}
 		}
     }
     done=false;
 
 
-    al_rest(4.0);
-
-    al_destroy_display(display);
-    al_destroy_event_queue(event_queue);
 
 	/*********/
 
 	
-	
+	if(!close)
+	{
 	do
 	{
 		if(num == 0)
 		{
 			num++;
 		}
-		printmapa(sim,celda);
+		al_clear_to_color(al_map_rgb(0,0,0));
+		for ( i = 0; i < ALTO; i++)
+		{
+			for ( j = 0; j < ANCHO; j++)
+			{
+				if (celda[i][j] == 1)
+				{
+					al_draw_filled_rectangle(j * CELDA_SIZE, i * CELDA_SIZE, (j + 1) * CELDA_SIZE, (i + 1) * CELDA_SIZE, al_map_rgb(0, 255, 0)); // Color verde para celdas vivas
+				} else
+				{
+					al_draw_rectangle(j * CELDA_SIZE, i * CELDA_SIZE, (j + 1) * CELDA_SIZE, (i + 1) * CELDA_SIZE, al_map_rgb(255, 255, 255), 1); // Color blanco del borde de las celulas muertas
+				}
+			}
+		}
+		al_flip_display();
 		gen += num;
 		printf("Es la generación %d\nHay %d células vivas\n",gen,end(celda));
 
 		if(end(celda)==0) // chequea si queda alguna célula viva
 		{
-			puts("Todas las células han muerto\n");
+			al_clear_to_color(al_map_rgb(0,0,0));
+			al_draw_text(font36, al_map_rgb(255, 0, 0), D_WIDTH / 2, (D_HEIGHT / 16)+100, ALLEGRO_ALIGN_CENTER,
+			"Todas las celulas han muerto :(:(");
+			al_flip_display();
 			break;	//finaliza el programa si todas las celulas estan muertas
 		}
 		else
@@ -255,69 +274,29 @@ int main (void)
 		}
 	}
 	while(num != 'q');	// espera a que se carque 'q' para terminar el programa
+	}
+	al_rest(3.0);
+
+	al_destroy_display(display);
+	al_destroy_event_queue(event_queue);
+	al_destroy_timer(timer);
 
     return 0;
 
 }
 
 
-static void ini(int celda[][ANCHO],ALLEGRO_FONT * font24,ALLEGRO_EVENT event)
+static void ini(int celda[][ANCHO])
 {
 	int i,j;
-	bool done1=false,done2;
 	
+
 	srand (time(NULL));	// inicializa seed random
-
-
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
-	"Si desea que el estado inicial de las celulas sea aleatorio,");
-	al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
-	" ingrese 'a'. Si prefiere inicializarlo manualmente, ingrese 'm'.");
-	al_flip_display();
-
-	while(!done1)
+	for (i = 0 ; i < ALTO ; i++)
 	{
-		if(event.keyboard.keycode==ALLEGRO_KEY_A)
+		for (j = 0 ; j < ANCHO ; j++)
 		{
-			for (i = 0 ; i < ALTO ; i++)
-			{
-				for (j = 0 ; j < ANCHO ; j++)
-				{
-					celda[i][j]=rand() % 2;	// randomiza cada celda, con 1 y 0
-				}
-			}
-			done1=true;
-		}
-		else if(event.keyboard.keycode == ALLEGRO_KEY_M)
-		{
-			al_clear_to_color(al_map_rgb(0, 0, 0));
-			al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16), ALLEGRO_ALIGN_CENTER,
-			"Seleccione el estado de la célula: 1 si está viva o 0 si está muerta");
-			al_draw_text(font24, al_map_rgb(255, 255, 255), D_WIDTH / 2, (D_HEIGHT / 16)+50, ALLEGRO_ALIGN_CENTER,
-			"Chequee en consola que posicion esta iniciando");
-			for ( i = 0; i < ALTO; i++)
-			{
-				for ( done2=false, j = 0 ; j < ANCHO ; j++)
-				{
-					printf("Estado de la célula en la posición %d,%d\n",i+1,j+1);	// se les suma 1 para que el primer el elemento de la matriz sea (1,1) y no (0,0)
-					while(!done2)
-					{
-						if(event.keyboard.keycode == ALLEGRO_KEY_1)
-						{
-							celda[i][j]=1;
-							done2=true;
-
-						}
-						else if (event.keyboard.keycode == ALLEGRO_KEY_0)
-						{
-							celda[i][j]=0;
-							done2=true;
-						}
-					}
-				}
-			}
-			done1=true;
+			celda[i][j]=rand() % 2;	// randomiza cada celda, con 1 y 0
 		}
 	}
 }
@@ -366,3 +345,6 @@ static int getnum(void)
 	}
 	return num;
 }
+
+
+
